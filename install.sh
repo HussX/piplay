@@ -40,8 +40,11 @@ mv ./startup.sh /opt/piplay/
 mv ./piplay.service /etc/systemd/system/multi-user.target.wants/
 
 #Enable service
+echo "Reloading systemctl daemon"
 systemctl daemon-reload
-systemctl enable piplay.service
+sleep 3
+echo "Enabling piplay service"
+systemctl enable piplay
 
 #Explain streams/grid/fps/rotation
 echo ""
