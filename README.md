@@ -16,6 +16,7 @@ DISCLAIMERS!
    to random panel sizes in my tests.  Obviously it would look rough on a single camera screen and should be changed.
 
 INSTALLATION!
+
 Modify piplay.py to your desires.  This isn't a custom screen location setup.  It's not built for multiple screens.
 If you make a 2x2 grid, make sure you have 4 cameras.  I haven't tested with 3 but it probably works right.
 
@@ -32,6 +33,7 @@ move piplay.py and startup.sh to /opt/piplay, and copy over and enable the pipla
 sudo systemctl start piplay per usual. (At least it should if the installer is right.)
 
 OTHERS!
+
 I did not come up with a plan to actively maintain this, but I'm open to recommended changes.  Or you can fork it
 and modify to your heart's content.  As previously mentioned, I needed this to replace displaycams in order to 
 get OSes up to date and run newer PIs.  And so long as I searched, I couldn't find anything else developed that
