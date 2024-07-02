@@ -35,6 +35,7 @@ done
 mkdir /opt/piplay
 mv ./piplay.py /opt/piplay/
 mv ./startup.sh /opt/piplay/
+chmod +x /opt/piplay/startup.sh
 
 #Move service file to /etc/systemd/system/
 mv ./piplay.service /etc/systemd/system/
