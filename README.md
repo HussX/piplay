@@ -32,6 +32,9 @@ Once you've modified piplay.py, sudo run the install.sh.  It will download the n
 move piplay.py and startup.sh to /opt/piplay, and copy over and enable the piplay.service file.  You can then
 sudo systemctl start piplay per usual. (At least it should if the installer is right.)
 
+IF YOU DIRECT DOWNLOAD PIPLAY.PY AND DO THE INSTALL YOUR OWN WAY, MAKE SURE TO PULL THE FRAMEBUFFER EXPORTS FROM STARTUP.SH!
+
+
 OTHERS!
 
 I did not come up with a plan to actively maintain this, but I'm open to recommended changes.  Or you can fork it
