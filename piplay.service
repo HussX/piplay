@@ -1,0 +1,13 @@
+[Unit]
+Description=PIPlay
+After=multi-user.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/piplay/
+ExecStart=sudo /opt/piplay/startup.sh
+KillSignal=SIGINT
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
