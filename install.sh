@@ -36,8 +36,8 @@ mkdir /opt/piplay
 mv ./piplay.py /opt/piplay/
 mv ./startup.sh /opt/piplay/
 
-#Move service file to /etc/systemd/system/multi-user.target.wants/
-mv ./piplay.service /etc/systemd/system/multi-user.target.wants/
+#Move service file to /etc/systemd/system/
+mv ./piplay.service /etc/systemd/system/
 
 #Enable service
 echo "Reloading systemctl daemon"
