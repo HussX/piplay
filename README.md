@@ -1,3 +1,8 @@
+UPDATES!
+
+I tested the installer and have it working to run as a service.
+I stripped the /r Windows newlines from bash files after the upload.
+
 DISCLAIMERS!
 
 1) This was designed as a working replacement for displaycams and omxplayer for PI4 and up on Bookworm LITE.  It 
