@@ -52,7 +52,7 @@ class VideoPanel(QWidget):
         self.is_playing = False
         self.frame_update_signal.connect(self.update_frame)
 
-        self.frame_queue = Queue(maxsize=10)  # Buffer up to 10 frames
+        self.frame_queue = Queue(maxsize=20)  # Increase buffer size to handle higher frame rate
         self.thread = threading.Thread(target=self.update_panel)
         self.thread.daemon = True
         self.thread.start()
@@ -65,7 +65,7 @@ class VideoPanel(QWidget):
         if self.cap:
             self.cap.release()
 
-        backends = [cv2.CAP_ANY, cv2.CAP_FFMPEG, cv2.CAP_GSTREAMER]
+        backends = [cv2.CAP_FFMPEG, cv2.CAP_GSTREAMER, cv2.CAP_ANY]
         for backend in backends:
             if backend == cv2.CAP_FFMPEG:
                 # Use FFMPEG as a fallback for VLC functionality
@@ -98,9 +98,9 @@ class VideoPanel(QWidget):
                     try:
                         self.frame_queue.put_nowait(qimg)
                     except Full:
-                        # Commenting out the 'Frame skipped' error message
-                        # logging.warning(f"Frame skipped for {self.stream_url}. Queue is full.")
-                        pass  # Drop frame if queue is full
+                        # Drop the oldest frame in the queue to make room for the new one
+                        self.frame_queue.get()
+                        self.frame_queue.put_nowait(qimg)
                 else:
                     self.is_playing = False
                     self.reconnecting_label.show()
