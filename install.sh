@@ -11,10 +11,12 @@ echo "The following packages will be installed:"
 echo "  - python3-opencv"
 echo "  - python3-pyqt6"
 echo "  - vlc"
-echo "  - gstreamer1.0-tools"
 echo "  - gstreamer1.0-plugins-good"
 echo "  - gstreamer1.0-plugins-bad"
 echo "  - gstreamer1.0-plugins-ugly"
+echo "  - python3-yaml"
+echo ""
+echo "Please be patient as there are a lot of involved dependencies!"
 echo ""
 
 # Prompt for confirmation to proceed
@@ -29,7 +31,7 @@ done
 
 # Update package lists and install required packages
 apt-get update
-apt-get install -y python3-opencv python3-pyqt6 vlc gstreamer1.0-tools gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly
+apt-get install -y python3-opencv python3-pyqt6 vlc gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly python3-yaml
 echo ""
 
 # Prompt to check if the user has configured piplay.py
