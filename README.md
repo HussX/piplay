@@ -8,28 +8,28 @@
 - **Camera Compatibility**: Initially designed for OpenCV, it has been modified to support Wyze cams and works with other cameras tested so far (e.g., Hik, Geo, Unifi, Wyze via Bridge Docker).
 - **Development**: This project was a joint effort between myself and AI. It has been refined multiple times to run efficiently in my use cases. While it may have areas for improvement and limitations, it serves as a good starting point for those who need it.
 - **Resolution**: The tool downsamples RTSP frames to 640x480 before rendering in PyQt. This provides better performance than direct downsampling to arbitrary panel sizes.
-- **Requirements**: The exact apt requirements will be tested on a fresh image soon and updated accordingly.
+- **Requirements**: The apt packages from the install script have been mostly validated and will be tweaked as I find redundancies.
 
 ## Installation
 
-1. **Modify `piplay.py`**: 
+1. **Modify `config.yaml`**: 
    - This tool is not built for custom screen setups or multiple screens.
-   - Ensure you have the correct number of cameras for your grid. For example, a 2x2 grid requires 4 cameras.
+   - Ensure you have the correct number of cameras for your grid. For example, a 2x2 grid for 3-4 cameras.
    - **Rotation**: Adjusts the output to the framebuffer to avoid screen rotation issues on the Pi.
    - **FPS**: Lowering this value skips more incoming frames, reducing CPU load.
    - **Grid Setup**: Set up the grid using the `row` and `column` variables. For instance, 2 rows and 3 columns will be arranged as such in 0 or 180-degree rotation. In 90 or 270-degree rotation, it will be a 3x2 grid. The stream order will fill the grid based on a 0-degree rotation.
 
 2. **Run the Installer**:
-   - Once `piplay.py` is modified to your requirements, run the following commands:
+   - Once `config.yaml` is modified to your requirements, run the following commands:
      ```sh
      sudo chmod +x ./install.sh
      sudo ./install.sh
      ```
-   - This will download the necessary Python packages, move `piplay.py` and `startup.sh` to `/opt/piplay`, and enable the `piplay.service` file. Start the service with:
+   - This will download the necessary Python packages, move `piplay.py`, `startup.sh`, and `config.yaml` to `/opt/piplay`, and enable the `piplay.service` file. Start the service with:
      ```sh
      sudo systemctl start piplay
      ```
-   - **Note**: If you download `piplay.py` directly and install manually, ensure to pull the framebuffer exports from `startup.sh`.
+   - **Note**: If you download `piplay.py` directly and install manually, ensure to pull the framebuffer exports from `startup.sh` along with the `config.yaml`.
 
 ## Contributions and Maintenance
 
