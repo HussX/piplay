@@ -17,12 +17,12 @@ If you like this and feel extra thankful, https://paypal.me/HussX1
 ## Installation
 
 1. **Clone**:
-  - Install git from apt and clone this:
-    ```sh
-    sudo apt-get install git
-    git clone https://github.com/HussX/piplay.git
-    cd piplay
-    ```
+   - Install git from apt and clone this:
+     ```sh
+     sudo apt-get install git
+     git clone https://github.com/HussX/piplay.git
+     cd piplay
+     ```
 
 2. **Modify `config.yaml`**: 
    - This tool is not built for custom screen locations or multiple screens. Just a generic grid.
