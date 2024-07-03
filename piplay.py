@@ -98,7 +98,7 @@ class VideoPanel(QWidget):
             if self.is_playing and self.cap and self.cap.isOpened():
                 ret, frame = self.cap.read()
                 if ret:
-                    frame = cv2.resize(frame, (640, 480))  # Resize frame to reduce load
+#                    frame = cv2.resize(frame, (640, 480))  # Resize frame to reduce load
                     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                     h, w, ch = frame.shape
                     qimg = QImage(frame.data, w, h, ch * w, QImage.Format.Format_RGB888)
