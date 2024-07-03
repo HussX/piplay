@@ -50,6 +50,9 @@ mv ./startup.sh /opt/piplay/
 mv ./config.yaml /opt/piplay/
 chmod +x /opt/piplay/startup.sh
 
+#Set up log rotation
+mv ./piplay /etc/logrotate.d/
+
 # Move the service file to /etc/systemd/system/ and enable it
 mv ./piplay.service /etc/systemd/system/
 

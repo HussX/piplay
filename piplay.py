@@ -35,7 +35,7 @@ except KeyError as e:
     sys.exit(1)
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='/var/log/piplay.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class VideoPanel(QWidget):
     frame_update_signal = pyqtSignal(QImage)

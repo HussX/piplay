@@ -44,7 +44,7 @@ If you like this and feel extra thankful, https://paypal.me/HussX1
      ```sh
      sudo systemctl start piplay
      ```
-   - If you need to troubleshoot, check `sudo systemctl status piplay` and/or `journalctl -f`.
+   - If you need to troubleshoot, check `sudo systemctl status piplay` and/or `journalctl -f`.  Program logfiles are stored at `/var/log/piplay.log`.
    - **Note**: If you download `piplay.py` directly and install manually, ensure to pull the framebuffer exports from `startup.sh` along with the `config.yaml`.
 
 ## Contributions and Maintenance
