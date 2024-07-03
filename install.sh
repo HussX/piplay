@@ -12,7 +12,6 @@ echo "  - python3-opencv"
 echo "  - python3-pyqt6"
 echo "  - vlc"
 echo "  - gstreamer1.0-tools"
-echo "  - gstreamer1.0-plugins-base"
 echo "  - gstreamer1.0-plugins-good"
 echo "  - gstreamer1.0-plugins-bad"
 echo "  - gstreamer1.0-plugins-ugly"
@@ -30,7 +29,7 @@ done
 
 # Update package lists and install required packages
 apt-get update
-apt-get install -y python3-opencv python3-pyqt6 vlc gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly
+apt-get install -y python3-opencv python3-pyqt6 vlc gstreamer1.0-tools gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly
 echo ""
 
 # Prompt to check if the user has configured piplay.py
