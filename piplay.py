@@ -94,7 +94,6 @@ class VideoPanel(QWidget):
                     try:
                         self.frame_queue.put_nowait(qimg)
                     except Full:
-                        # Commenting out the 'Frame skipped' error message
                         # Drop the oldest frame in the queue to make room for the new one
                         self.frame_queue.get()
                         self.frame_queue.put_nowait(qimg)
