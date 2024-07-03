@@ -5,9 +5,11 @@ After=multi-user.target
 [Service]
 Type=simple
 WorkingDirectory=/opt/piplay/
-ExecStart=sudo /opt/piplay/startup.sh
+ExecStart=/opt/piplay/startup.sh
 KillSignal=SIGINT
 Restart=on-failure
+RestartSec=10
+Environment=XDG_RUNTIME_DIR=/run/user/0
 
 [Install]
 WantedBy=multi-user.target
