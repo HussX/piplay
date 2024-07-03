@@ -1,10 +1,10 @@
 settings:
-  fps: 12
+  fps: 12  # Lower to discard more frames and reduce CPU intensity; raise for higher frame rates.
   rotation_angle: 0  # Options: 0, 90, 180, 270
-  grid_rows: 2
-  grid_cols: 2
+  grid_rows: 2  # Number of rows in the camera grid (top to bottom)
+  grid_cols: 2  # Number of columns in the camera grid (left to right)
 
-streams:
+streams:  # List of RTSP and M3U8 streams; others may work but are untested.
   - rtsp://user:pass@192.168.12.201:10554/Streaming/Channels/1402/
   - rtsp://192.168.1.99/Streaming/Channels/1302/
   - http://192.168.1.200/camera/stream.m3u8
