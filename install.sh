@@ -1,58 +1,67 @@
 #!/usr/bin/env bash
-# Run this as root!
-if [ "$EUID" -ne 0 ]
-	then echo "Please run with sudo"
-	exit
+
+# Check if the script is run as root
+if [ "$EUID" -ne 0 ]; then
+    echo "Please run with sudo"
+    exit 1
 fi
-echo  "This installation requires several packages from apt.  I made a point to use repo packages instead of a venv"
-echo  "It will install python3-opencv python3-pyqt6 vlc gstreamer1.0-tools gstreamer1.0-plugins-base"
-echo  "gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly"
+
+echo "This installation requires several packages from apt."
+echo "The following packages will be installed:"
+echo "  - python3-opencv"
+echo "  - python3-pyqt6"
+echo "  - vlc"
+echo "  - gstreamer1.0-tools"
+echo "  - gstreamer1.0-plugins-base"
+echo "  - gstreamer1.0-plugins-good"
+echo "  - gstreamer1.0-plugins-bad"
+echo "  - gstreamer1.0-plugins-ugly"
 echo ""
+
+# Prompt for confirmation to proceed
 while true; do
-	read -p "Proceed? (y/n)" yn
-	case $yn in
-		[yY] ) break;;
-		[nN] ) echo "Exiting";
-			exit;;
-		* ) echo "Invalid response";;
-	esac
+    read -p "Proceed with installation? (y/n): " yn
+    case $yn in
+        [yY] ) break;;
+        [nN] ) echo "Exiting"; exit 0;;
+        * ) echo "Invalid response";;
+    esac
 done
+
+# Update package lists and install required packages
 apt-get update
 apt-get install -y python3-opencv python3-pyqt6 vlc gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly
 echo ""
-#Prompt if user has configured piplay.py
+
+# Prompt to check if the user has configured piplay.py
 while true; do
-	read -p "Have you already configured piplay.py?  It can be configured later in /opt/piplay. (y/n)" config
-	case $config in
-		[yY] ) break;;
-		[nN] ) echo "Exiting";
-			exit;;
-		* ) echo "Invalid response";;
-	esac
+    read -p "Have you already configured piplay.py? It can be configured later in /opt/piplay. (y/n): " config
+    case $config in
+        [yY] ) break;;
+        [nN] ) echo "Exiting"; exit 0;;
+        * ) echo "Invalid response";;
+    esac
 done
 
-#Move things to /opt/piplay
-mkdir /opt/piplay
+# Move files to /opt/piplay and set permissions
+mkdir -p /opt/piplay
 mv ./piplay.py /opt/piplay/
 mv ./startup.sh /opt/piplay/
 chmod +x /opt/piplay/startup.sh
 
-#Move service file to /etc/systemd/system/
+# Move the service file to /etc/systemd/system/ and enable it
 mv ./piplay.service /etc/systemd/system/
 
-#Enable service
 echo "Reloading systemctl daemon"
 systemctl daemon-reload
-sleep 3
+sleep 1
+
 echo "Enabling piplay service"
 systemctl enable piplay
-
-#Explain streams/grid/fps/rotation
 echo ""
-echo "Make sure to read the README for piplay.py basic configs"
-#Explain file location in case of modifications / Do NOT run this again.
-echo "Further modification can be made to /opt/piplay/piplay.py and then run sudo systemctl restart piplay"
-#Explain to start service
-echo "If you are good to go, run sudo systemctl start piplay"
-sleep 5
 
+# Provide final instructions to the user
+echo "Make sure to read the README for piplay.py basic configurations."
+echo "Further modifications can be made to /opt/piplay/piplay.py and then run 'sudo systemctl restart piplay'."
+echo "If you are ready to start the service, run 'sudo systemctl start piplay'."
+sleep 3
