@@ -8,6 +8,7 @@
 - **Camera Compatibility**: It works with the handful of cameras tested so far (e.g., Hik, Geo, Unifi, Wyze via Bridge Docker). Tested with H265!!
 - **Resolution**: The tool downsamples RTSP frames to 640x480 before rendering in PyQt. This provides better performance than direct downsampling to arbitrary panel sizes.
 - **Requirements**: The apt packages from the install script have been mostly validated and will be tweaked as I find redundancies.
+- **Wyze Bridge**: If you run the Docker bridge for Wyze, rtsp streams are oddly encoded.  I had to use the m3u8 stream to make them read properly.
 
 ## Donations
 
