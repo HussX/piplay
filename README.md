@@ -12,14 +12,22 @@
 
 ## Installation
 
-1. **Modify `config.yaml`**: 
-   - This tool is not built for custom screen setups or multiple screens.
+1. **Clone**:
+  - Install git from apt and clone this:
+    ```sh
+    sudo apt-get install git
+    git clone https://github.com/HussX/piplay.git
+    cd piplay
+    ```
+
+2. **Modify `config.yaml`**: 
+   - This tool is not built for custom screen locations or multiple screens. Just a generic grid.
    - Ensure you have the correct number of cameras for your grid. For example, a 2x2 grid for 3-4 cameras.
    - **Rotation**: Adjusts the output to the framebuffer to avoid screen rotation issues on the Pi.
    - **FPS**: Lowering this value skips more incoming frames, reducing CPU load.
    - **Grid Setup**: Set up the grid using the `row` and `column` variables. For instance, 2 rows and 3 columns will be arranged as such in 0 or 180-degree rotation. In 90 or 270-degree rotation, it will be a 3x2 grid. The stream order will fill the grid based on a 0-degree rotation.
 
-2. **Run the Installer**:
+3. **Run the Installer**:
    - Once `config.yaml` is modified to your requirements, run the following commands:
      ```sh
      sudo chmod +x ./install.sh
