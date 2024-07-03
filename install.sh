@@ -36,7 +36,7 @@ echo ""
 
 # Prompt to check if the user has configured piplay.py
 while true; do
-    read -p "Have you already configured piplay.py? It can be configured later in /opt/piplay. (y/n): " config
+    read -p "Have you already configured config.yaml? It can be configured later in /opt/piplay. (y/n): " config
     case $config in
         [yY] ) break;;
         [nN] ) echo "Exiting"; exit 0;;
@@ -48,6 +48,7 @@ done
 mkdir -p /opt/piplay
 mv ./piplay.py /opt/piplay/
 mv ./startup.sh /opt/piplay/
+mv ./config.yaml /opt/piplay/
 chmod +x /opt/piplay/startup.sh
 
 # Move the service file to /etc/systemd/system/ and enable it
@@ -62,7 +63,7 @@ systemctl enable piplay
 echo ""
 
 # Provide final instructions to the user
-echo "Make sure to read the README for piplay.py basic configurations."
-echo "Further modifications can be made to /opt/piplay/piplay.py and then run 'sudo systemctl restart piplay'."
+echo "Make sure to read the README for config.yaml basic configurations."
+echo "Further modifications can be made to /opt/piplay/config.yaml and then run 'sudo systemctl restart piplay'."
 echo "If you are ready to start the service, run 'sudo systemctl start piplay'."
 sleep 3
