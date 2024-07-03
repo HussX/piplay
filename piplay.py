@@ -10,15 +10,18 @@ from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLa
 from PyQt6.QtGui import QPixmap, QImage, QTransform
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 
+# Configure logging
+logging.basicConfig(filename='/var/log/piplay.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 # Load configuration
 try:
     with open('config.yaml', 'r') as file:
         config = yaml.safe_load(file)
 except FileNotFoundError:
-    print("Error: 'config.yaml' not found.")
+    logging.warning(f"Error: 'config.yaml' not found.")
     sys.exit(1)
 except yaml.YAMLError as e:
-    print(f"Error parsing 'config.yaml': {e}")
+    logging.warning(f"Error parsing 'config.yaml': {e}")
     sys.exit(1)
 
 # Read settings from the config file
@@ -31,11 +34,8 @@ try:
     # Read streams from the config file
     streams = config['streams']
 except KeyError as e:
-    print(f"Missing key in config.yaml: {e}")
+    logging.warning(f"Missing key in config.yaml: {e}")
     sys.exit(1)
-
-# Configure logging
-logging.basicConfig(filename='/var/log/piplay.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class VideoPanel(QWidget):
     frame_update_signal = pyqtSignal(QImage)
