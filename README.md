@@ -1,4 +1,4 @@
-# PiPlay: Display Replacement for RTSP Camera Streams
+# PiPlay: PI Display for RTSP Camera Streams on Bookworm lite!
 
 ## Disclaimers
 
