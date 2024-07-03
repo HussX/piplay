@@ -37,7 +37,10 @@ If you like this and feel extra thankful, https://paypal.me/HussX1
      sudo chmod +x ./install.sh
      sudo ./install.sh
      ```
-   - This will download the necessary Python packages, move `piplay.py`, `startup.sh`, and `config.yaml` to `/opt/piplay`, and enable the `piplay.service` file. Start the service with:
+   - This will download the necessary Python packages, move `piplay.py`, `startup.sh`, and `config.yaml` to `/opt/piplay`, and enable the `piplay.service` file. 
+
+4. **Start the service**:
+   - Run:
      ```sh
      sudo systemctl start piplay
      ```
