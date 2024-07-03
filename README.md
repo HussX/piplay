@@ -10,6 +10,10 @@
 - **Resolution**: The tool downsamples RTSP frames to 640x480 before rendering in PyQt. This provides better performance than direct downsampling to arbitrary panel sizes.
 - **Requirements**: The apt packages from the install script have been mostly validated and will be tweaked as I find redundancies.
 
+## Donations
+
+If you like this and feel extra thankful, https://paypal.me/HussX1
+
 ## Installation
 
 1. **Clone**:
