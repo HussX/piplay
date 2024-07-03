@@ -4,31 +4,27 @@ import cv2
 import threading
 import time
 import logging
+import yaml
 from queue import Queue, Full, Empty
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel
 from PyQt6.QtGui import QPixmap, QImage, QTransform
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 
+# Load configuration
+with open('config.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+
+# Read settings from the config file
+FPS = config['settings']['fps']
+ROTATION_ANGLE = config['settings']['rotation_angle']
+GRID_ROWS = config['settings']['grid_rows']
+GRID_COLS = config['settings']['grid_cols']
+
+# Read streams from the config file
+streams = config['streams']
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-# Define URLs for the streams.  4x if 2x2 Row/Col, 6 for 2x3, etc.
-streams = [
-    "rtsp://user:pass@192.168.12.201:10554/Streaming/Channels/1402/",
-    "rtsp://192.168.1.99/Streaming/Channels/1302/",
-    "http://192.168.1.200/camera/stream.m3u8",
-    "rtsp://192.168.1.199/Streaming/Channels/902/"
-]
-
-# Define desired number of rows and columns (In regular view.  Rows and Cols don't rotate with the view.)
-GRID_ROWS = 2
-GRID_COLS = 2
-
-# Desired FPS for display
-FPS = 12
-
-# Rotation angle in degrees - Rotating does NOT change the display order you typed above!
-ROTATION_ANGLE = 0  # Options: 0, 90, 180, 270
 
 class VideoPanel(QWidget):
     frame_update_signal = pyqtSignal(QImage)
@@ -98,6 +94,7 @@ class VideoPanel(QWidget):
                     try:
                         self.frame_queue.put_nowait(qimg)
                     except Full:
+                        # Commenting out the 'Frame skipped' error message
                         # Drop the oldest frame in the queue to make room for the new one
                         self.frame_queue.get()
                         self.frame_queue.put_nowait(qimg)

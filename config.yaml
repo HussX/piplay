@@ -1,0 +1,11 @@
+settings:
+  fps: 12
+  rotation_angle: 0  # Options: 0, 90, 180, 270
+  grid_rows: 2
+  grid_cols: 2
+
+streams:
+  - rtsp://user:pass@192.168.12.201:10554/Streaming/Channels/1402/
+  - rtsp://192.168.1.99/Streaming/Channels/1302/
+  - http://192.168.1.200/camera/stream.m3u8
+  - rtsp://192.168.1.199/Streaming/Channels/902/
