@@ -65,4 +65,5 @@ echo ""
 echo "Make sure to read the README for config.yaml basic configurations."
 echo "Further modifications can be made to /opt/piplay/config.yaml and then run 'sudo systemctl restart piplay'."
 echo "If you are ready to start the service, run 'sudo systemctl start piplay'."
+echo "If you need to troubleshoot after starting, please check 'sudo systemctl status piplay' and/or 'journalctl -f'"
 sleep 3
