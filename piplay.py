@@ -8,7 +8,7 @@ import yaml
 from queue import Queue, Full, Empty
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel
 from PyQt6.QtGui import QPixmap, QImage, QTransform
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal
+from PyQt6.QtCore import Qt, QTimer, pyqtSignal, pyqtSlot, QMetaObject
 
 # Configure logging
 logging.basicConfig(filename='/var/log/piplay.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -39,6 +39,7 @@ except KeyError as e:
 
 class VideoPanel(QWidget):
     frame_update_signal = pyqtSignal(QImage)
+    reconnect_signal = pyqtSignal()
 
     def __init__(self, stream_url, parent=None):
         super().__init__(parent)
@@ -58,6 +59,7 @@ class VideoPanel(QWidget):
         self.cap = None
         self.is_playing = False
         self.frame_update_signal.connect(self.update_frame)
+        self.reconnect_signal.connect(self.connect)
 
         self.frame_queue = Queue(maxsize=20)  # Increase buffer size to handle higher frame rate
         self.thread = threading.Thread(target=self.update_panel)
@@ -68,6 +70,7 @@ class VideoPanel(QWidget):
         self.timer.timeout.connect(self.display_frame)
         self.timer.start(1000 // FPS)
 
+    @pyqtSlot()
     def connect(self):
         if self.cap:
             self.cap.release()
@@ -81,16 +84,31 @@ class VideoPanel(QWidget):
                 # Default OpenCV backend or GStreamer
                 self.cap = cv2.VideoCapture(self.stream_url, backend)
             if self.cap.isOpened():
+                self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)  # Reduce buffer size
                 break  # Exit loop if we successfully opened the stream
 
         if not self.cap.isOpened():
             logging.warning(f"Failed to connect to {self.stream_url} using any backend.")
             self.reconnecting_label.show()
-            QTimer.singleShot(10000, self.connect)
+            self.schedule_reconnect()
         else:
             self.reconnecting_label.hide()
             self.is_playing = True
             logging.info(f"Connected to {self.stream_url} using backend {backend}.")
+    
+    def schedule_reconnect(self):
+
+        logging.info(f"Scheduling reconnection for {self.stream_url}")
+
+        QMetaObject.invokeMethod(self, "emit_reconnect_signal", Qt.ConnectionType.QueuedConnection)
+
+
+
+    @pyqtSlot()
+
+    def emit_reconnect_signal(self):
+
+        QTimer.singleShot(10000, self.reconnect_signal.emit)
 
     def update_panel(self):
         self.connect()
@@ -112,7 +130,7 @@ class VideoPanel(QWidget):
                     self.is_playing = False
                     self.reconnecting_label.show()
                     logging.warning(f"Lost connection to {self.stream_url}. Reconnecting...")
-                    QTimer.singleShot(10000, self.connect)
+                    self.schedule_reconnect()
             else:
                 time.sleep(1)
 
