@@ -11,17 +11,28 @@ from PyQt6.QtGui import QPixmap, QImage, QTransform
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 
 # Load configuration
-with open('config.yaml', 'r') as file:
-    config = yaml.safe_load(file)
+try:
+    with open('config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+except FileNotFoundError:
+    print("Error: 'config.yaml' not found.")
+    sys.exit(1)
+except yaml.YAMLError as e:
+    print(f"Error parsing 'config.yaml': {e}")
+    sys.exit(1)
 
 # Read settings from the config file
-FPS = config['settings']['fps']
-ROTATION_ANGLE = config['settings']['rotation_angle']
-GRID_ROWS = config['settings']['grid_rows']
-GRID_COLS = config['settings']['grid_cols']
+try:
+    FPS = config['settings']['fps']
+    ROTATION_ANGLE = config['settings']['rotation_angle']
+    GRID_ROWS = config['settings']['grid_rows']
+    GRID_COLS = config['settings']['grid_cols']
 
-# Read streams from the config file
-streams = config['streams']
+    # Read streams from the config file
+    streams = config['streams']
+except KeyError as e:
+    print(f"Missing key in config.yaml: {e}")
+    sys.exit(1)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -122,6 +133,7 @@ class VideoPanel(QWidget):
             transform.rotate(180)
         elif ROTATION_ANGLE == 270:
             transform.rotate(270)
+        # Default is 0
         rotated_pixmap = pixmap.transformed(transform, Qt.TransformationMode.SmoothTransformation)
         return rotated_pixmap.toImage()
 
