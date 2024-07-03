@@ -3,10 +3,9 @@
 ## Disclaimers
 
 - **Screen Output**: If you do not have a screen powered on at service launch time, the service WILL fail!  Eglfs detects the screen capabilities at launch in order to maximize the PyQT6 space usage.
-- **Compatibility**: This tool is designed as a replacement for `displaycams` and `omxplayer` on Raspberry Pi 4 and later running Bookworm Lite. It may not function properly if you have a desktop GUI, as it pipes output to the framebuffer.
-- **Performance on Pi 3**: While it has been tested on a Raspberry Pi 3B with multiple streams, it is recommended only for viewing one or two streams. It performs smoothly with several streams on a Pi 4.
-- **Camera Compatibility**: Initially designed for OpenCV, it has been modified to support Wyze cams and works with other cameras tested so far (e.g., Hik, Geo, Unifi, Wyze via Bridge Docker). Tested with H265!!
-- **Development**: This project was a joint effort between myself and AI. It has been refined multiple times to run efficiently in my use cases. While it may have areas for improvement and limitations, it serves as a good starting point for those who need it.
+- **Compatibility**: This was designed for Raspberry Pi 4 and later running Bookworm Lite. It may not function properly if you have a desktop GUI, as it pipes output to the framebuffer.
+- **Performance on Pi 3**: I don't recommend more than a couple streams on a PI 3. It performs smoothly with several streams on a Pi 4.  Pi 5 should work well (Will test.)
+- **Camera Compatibility**: It works with the handful of cameras tested so far (e.g., Hik, Geo, Unifi, Wyze via Bridge Docker). Tested with H265!!
 - **Resolution**: The tool downsamples RTSP frames to 640x480 before rendering in PyQt. This provides better performance than direct downsampling to arbitrary panel sizes.
 - **Requirements**: The apt packages from the install script have been mostly validated and will be tweaked as I find redundancies.
 
@@ -50,4 +49,4 @@ If you like this and feel extra thankful, https://paypal.me/HussX1
 ## Contributions and Maintenance
 
 - I do not have a plan to actively maintain this project unless I run across active needs, but I am open to recommended changes. Feel free to fork and modify it as needed.
-- This project was created to replace `displaycams` and enable running up-to-date OSes on newer Raspberry Pis. After extensive searches, I found no other developed tools that worked well, so I am sharing this solution.
+- This project was created to replace my use of `displaycams` and enable running up-to-date OSes on newer Raspberry Pis. After extensive searches, I found no other developed tools that worked well, so I am sharing this solution. Developed as a joint effort between myself and some AI assistance.
