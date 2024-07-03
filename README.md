@@ -45,5 +45,5 @@ If you like this and feel extra thankful, https://paypal.me/HussX1
 
 ## Contributions and Maintenance
 
-- I do not have a plan to actively maintain this project but I am open to recommended changes. Feel free to fork and modify it as needed.
-- This project was created to replace `displaycams` and enable running up-to-date OSes on newer Raspberry Pis. After extensive searches, I found no other developed tools that worked, so I am sharing this solution.
+- I do not have a plan to actively maintain this project unless I run across active needs, but I am open to recommended changes. Feel free to fork and modify it as needed.
+- This project was created to replace `displaycams` and enable running up-to-date OSes on newer Raspberry Pis. After extensive searches, I found no other developed tools that worked well, so I am sharing this solution.
