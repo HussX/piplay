@@ -94,7 +94,15 @@ class VideoPanel(QWidget):
         else:
             self.reconnecting_label.hide()
             self.is_playing = True
-            logging.info(f"Connected to {self.stream_url} using backend {backend}.")
+            if backend == 1900:
+                backendN = "FFMpeg"
+            elif backend == 1800:
+                backendN = "GStreamer"
+            elif backend == 0:
+                backendN = "CV Any"
+            else:
+                backendN = "Undocumented"
+            logging.info(f"Connected to {self.stream_url} using backend {backendN}.")
     
     def schedule_reconnect(self):
 
