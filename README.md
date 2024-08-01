@@ -4,7 +4,7 @@
 
 - **Screen Output**: If you do not have a screen powered on at service launch time, the service WILL fail!  Eglfs detects the screen capabilities at launch in order to maximize the PyQT6 space usage.
 - **Compatibility**: This was designed for Raspberry Pi 4 and later running Bookworm Lite. It may not function properly if you have a desktop GUI, as it pipes output to the framebuffer.
-- **Performance on Pi 3**: I don't recommend more than a couple streams on a PI 3. It performs smoothly with several streams on a Pi 4.  Pi 5 should work well (Will test.)
+- **Performance on Pi 3**: I don't recommend more than a couple streams on a PI 3. It performs smoothly with several streams on a Pi 4.  Pi 5 should work well (Tested working, awaiting feedback from others.)
 - **Camera Compatibility**: It works with the handful of cameras tested so far (e.g., Hik, Geo, Unifi, Wyze via Bridge Docker). Tested with H265!!
 - **Requirements**: The apt packages from the install script have been mostly validated and will be tweaked as I find redundancies.
 - **Wyze Bridge**: If you run the Docker bridge for Wyze, rtsp streams are oddly encoded.  I had to use the m3u8 stream to make them read properly.
