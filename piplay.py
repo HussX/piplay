@@ -124,7 +124,6 @@ class VideoPanel(QWidget):
             if self.is_playing and self.cap and self.cap.isOpened():
                 ret, frame = self.cap.read()
                 if ret:
-#                    frame = cv2.resize(frame, (640, 480))  # Resize frame to reduce load
                     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                     h, w, ch = frame.shape
                     qimg = QImage(frame.data, w, h, ch * w, QImage.Format.Format_RGB888)
@@ -182,10 +181,18 @@ class RtspPlayerFrame(QWidget):
     def initUI(self):
         self.setStyleSheet("background-color: black;")
         grid_layout = QGridLayout(self)
+
+        # Get screen dimensions
+        screen_resolution = QApplication.primaryScreen().availableSize()
+        screen_width, screen_height = screen_resolution.width(), screen_resolution.height()
+        panel_width = int(screen_width / GRID_COLS)
+        panel_height = int(screen_height / GRID_ROWS)
+        
         for i, stream_url in enumerate(streams):
             row = i // GRID_COLS
             col = i % GRID_COLS
             video_panel = VideoPanel(stream_url, self)
+            video_panel.setFixedSize(panel_width, panel_height)
             video_panel.setStyleSheet("background-color: black;")
             grid_layout.addWidget(video_panel, row, col)
             self.panels.append(video_panel)
