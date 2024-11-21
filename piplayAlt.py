@@ -28,7 +28,6 @@ except yaml.YAMLError as e:
 
 # Read settings from the config file
 try:
-    FPS = config['settings']['fps']
     ROTATION_ANGLE = config['settings']['rotation_angle']
     GRID_ROWS = config['settings']['grid_rows']
     GRID_COLS = config['settings']['grid_cols']
@@ -43,14 +42,17 @@ except KeyError as e:
     
 class OpencvImageProvider(QQuickImageProvider):
     imageChanged = pyqtSignal(int)  # Signal to notify QML about image updates
-
+    ready = pyqtSignal()
     def __init__(self, index):
         super().__init__(QQuickImageProvider.ImageType.Image)
         self.image = QImage(200, 200, QImage.Format.Format_RGB32)  # Initialize with a default image
         self.index = index
+        #self.ready = False
         logging.debug(f"Provider {index} initialized.")
         
     def requestImage(self, id, size: QSize, requestedSize: QSize = QSize()):
+        #if not self.ready:
+        #    return QImage(200, 200, QImage.Format.Format_RGB32), QSize(200, 200)
         logging.debug(f"requestImage with {id} by {self.index}")
         return self.image, self.image.size()
 
@@ -107,28 +109,21 @@ class VideoProcessor(QThread):
                 logging.error(f"Failed to open video stream: {self.video_path}")
                 return
 
-            self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)
+            self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 10)
             self.cap.set(cv2.CAP_PROP_HW_ACCELERATION, cv2.CAP_FFMPEG)
-
-            video_fps = self.cap.get(cv2.CAP_PROP_FPS) or FPS
-            frame_interval = max(1, round(video_fps / FPS)) if video_fps > FPS else 1
-            frame_count = 0
 
             while self.running:
                 ret, frame = self.cap.read()
                 if ret:
-                    if frame_count % frame_interval == 0:
-                        if ROTATION_ANGLE != 0:
-                            rows, cols = frame.shape[:2]
-                            rotation_matrix = cv2.getRotationMatrix2D((cols / 2, rows / 2), ROTATION_ANGLE, 1)
-                            frame = cv2.warpAffine(frame, rotation_matrix, (frame.shape[1], frame.shape[0]))
+                    if ROTATION_ANGLE != 0:
+                        rows, cols = frame.shape[:2]
+                        rotation_matrix = cv2.getRotationMatrix2D((cols / 2, rows / 2), ROTATION_ANGLE, 1)
+                        frame = cv2.warpAffine(frame, rotation_matrix, (frame.shape[1], frame.shape[0]))
 
-                        height, width, channel = frame.shape
-                        bytesPerLine = 3 * width
-                        qImg = QImage(frame.data, width, height, bytesPerLine, QImage.Format.Format_BGR888)
-                        self.imageReady.emit(qImg, self.index)  # Emit the image
-
-                    frame_count += 1
+                    height, width, channel = frame.shape
+                    bytesPerLine = 3 * width
+                    qImg = QImage(frame.data, width, height, bytesPerLine, QImage.Format.Format_BGR888)
+                    self.imageReady.emit(qImg, self.index)  # Emit the image
                 else:
                     logging.warning("Failed to grab frame.")
                     break
@@ -154,7 +149,6 @@ class VideoStreamerWorker(QObject):
         self.image_provider = OpencvImageProvider(index)
         self.video_processor = VideoProcessor(video_path, index, self)
         self.video_processor.imageReady.connect(self.updateImage)
-        self.video_processor.start()
         logging.debug(f"VideoStreamerWorker {self.index} initialized.")
 
     def initialize_rotation_matrix(self, frame):
@@ -212,6 +206,8 @@ if __name__ == '__main__':
     def check_ready():
         if engine.rootObjects():
             logging.info("QML components are ready.")
+            for i, worker in enumerate(video_workers):
+                QTimer.singleShot(i * 500, worker.video_processor.start)
         else:
             logging.info("QML components not ready yet. Retrying...")
             QTimer.singleShot(100, check_ready)

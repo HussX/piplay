@@ -30,29 +30,21 @@ ApplicationWindow {
                     fillMode: Image.Stretch  // Make sure fillMode is set correctly
                     source: "image://live_" + model.index + "/" + model.index
                     cache: false
-                    
+                    property var provider: liveImageProviders[index]
                     Component.onCompleted: {
-                        var imageProvider = liveImageProviders[index]; // Get the provider directly
-                        if (imageProvider) {
+                        if (provider) {
                             console.log("Connecting to image provider for index:", index);
-                            imageProvider.imageChanged.connect(reload); // Connect to the signal
+                            provider.imageChanged.connect(reload);
+                            //provider.ready.connect(onReady);
                         } else {
                             console.error("Image provider not found for index:", index);
                         }
                     }
-
+                    //function onReady() {
+                    //    provider.ready = true;
+                    //}
                     function reload() {
                         source = "image://live_" + index + "/" + index + "?timestamp=" + Date.now();
-                    }
-                }
-
-                Connections {
-                    target: liveImageProviders[index]
-                    function imageChanged(index) {
-                        console.log("imageChanged signal received for index: " + index);
-                        if (index === model.index) {
-                            opencvImage.reload();
-                        }
                     }
                 }
             }
