@@ -126,7 +126,7 @@ class VideoPanel(QWidget):
                 if ret:
                     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                     h, w, ch = frame.shape
-                    qimg = QImage(frame.data, w, h, ch * w, QImage.Format.Format_RGB888)
+                    qimg = QImage(frame.data, w, h, ch * w, QImage.Format.Format_RGB888).copy()
                     try:
                         self.frame_queue.put_nowait(qimg)
                     except Full:

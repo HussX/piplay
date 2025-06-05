@@ -122,7 +122,7 @@ class VideoProcessor(QThread):
 
                     height, width, channel = frame.shape
                     bytesPerLine = 3 * width
-                    qImg = QImage(frame.data, width, height, bytesPerLine, QImage.Format.Format_BGR888)
+                    qImg = QImage(frame.data, width, height, bytesPerLine, QImage.Format.Format_BGR888).copy()
                     self.imageReady.emit(qImg, self.index)  # Emit the image
                 else:
                     logging.warning("Failed to grab frame.")
