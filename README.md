@@ -1,5 +1,5 @@
 # PiPlay: PI Display for RTSP Camera Streams on Bookworm lite!
-
+## See also the newer [MPV](https://github.com/HussX/piplay/tree/mpv) branch in progress - added webhooks to turn on/off screen and restart the service easily
 ## Disclaimers
 
 - **Screen Output**: If you do not have a screen powered on at service launch time, the service WILL fail!  Eglfs detects the screen capabilities at launch in order to maximize the PyQT6 space usage.
