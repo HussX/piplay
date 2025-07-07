@@ -4,6 +4,9 @@ import logging
 import sys
 import signal
 import time
+from flask import Flask, jsonify
+from threading import Thread
+import subprocess
 
 # Configure logging
 logging.basicConfig(filename='/var/log/piplay.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -31,6 +34,50 @@ except KeyError as e:
     logging.warning(f"Missing key in config.yaml: {e}")
     sys.exit(1)
 
+# --- Webhook Server Setup ---
+app = Flask(__name__)
+
+def run_command(command_args, command_name):
+    """A helper function to run shell commands and handle errors."""
+    try:
+        # Using check=True will raise CalledProcessError if the command returns a non-zero exit code
+        subprocess.run(command_args, check=True, capture_output=True, text=True)
+        logging.info(f"Webhook: Successfully executed '{command_name}'.")
+        return jsonify(status="success", command=command_name), 200
+    except FileNotFoundError:
+        logging.error(f"Webhook: Command '{command_args[0]}' not found. Is it installed and in the system's PATH?")
+        return jsonify(status="error", message=f"Command '{command_args[0]}' not found."), 500
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Webhook: Error executing '{command_name}': {e.stderr}")
+        return jsonify(status="error", message=f"Error executing command.", details=e.stderr), 500
+
+@app.route('/on', methods=['GET', 'POST'])
+def screen_on():
+    """Endpoint to turn the screen on via DPMS."""
+    return run_command(['xset', 'dpms', 'force', 'on'], 'xset dpms force on')
+
+@app.route('/off', methods=['GET', 'POST'])
+def screen_off():
+    """Endpoint to turn the screen off via DPMS."""
+    return run_command(['xset', 'dpms', 'force', 'off'], 'xset dpms force off')
+
+@app.route('/restart', methods=['GET', 'POST'])
+def screen_restart():
+    """Restart piplay service."""
+    subprocess.run(['systemctl', 'restart', 'piplay'])
+    return jsonify(status="success", command='restart'), 200
+
+@app.route('/', methods=['GET'])
+def index():
+    """Root endpoint to check if the server is running."""
+    return jsonify(status="ok", message="PiPlay webhook server is running."), 200
+
+def run_webhook_server():
+    """Runs the Flask app using the Waitress production server."""
+    logging.info("Starting webhook server on http://0.0.0.0:80")
+    from waitress import serve
+    serve(app, host='0.0.0.0', port=80)
+# --- End Webhook Server Setup ---
 
 # --- Global State ---
 MPV_INSTANCES_INFO = []
@@ -69,6 +116,8 @@ class MpvPlayerWrapper:
         self.player = None
         self.last_attempt_time = 0
         self.should_be_running = True # Set to False on shutdown
+        self.retry_count = 0
+        self.is_playing = False
 
     def start(self):
         """Terminates any old instance and starts a new one. This is the only
@@ -80,13 +129,20 @@ class MpvPlayerWrapper:
         # Always terminate existing player for a clean restart
         if self.player:
             logging.info(f"[{self.title}] Terminating previous player instance before new attempt.")
-            try: self.player.terminate()
-            except: pass
-            self.player = None
-            time.sleep(0.1) # Small pause for resources to free
+            try: 
+                self.player.quit()
+                time.sleep(0.2)
+                if hasattr(self.player, 'terminate') and getattr(self.player, '_handle', None):
+                    self.player.terminate()
+            except Exception as e:
+                logging.error(f"[{self.title}] Error during player termination: {e}", exc_info=False)
+            finally:
+                self.player = None
+                time.sleep(0.1)
 
         logging.info(f"[{self.title}] Attempting to start stream: {self.url}")
         self.last_attempt_time = time.time()
+        self.is_playing = False
 
         try:
             self.player = mpv.MPV(
@@ -101,6 +157,8 @@ class MpvPlayerWrapper:
                 video_rotate=ROTATION_ANGLE,
                 keepaspect='no',
                 title=self.title,
+                demuxer_lavf_o='reconnect=1,reconnect_streamed=1,reconnect_delay_max=5',
+                stop_screensaver='no'
             )
             
             self.player.play(self.url)
@@ -116,44 +174,40 @@ class MpvPlayerWrapper:
             if self.player: self.stop()
             return
         
-        status = 'STOPPED_OR_FAILED' # Default assumption
+        is_currently_active = False
         try:
-            if self.player:
-                # Check for definitive failure first
-                aborted = getattr(self.player, 'playback_abort_reason', None)
-                if aborted and str(aborted).lower() != 'no':
-                    status = 'STOPPED_OR_FAILED'
-                    logging.warning(f"[{self.title}] Playback aborted: {aborted}.")
-                # Check for seeking/connecting state
-                elif getattr(self.player, 'seeking', False):
-                    status = 'CONNECTING'
-                # Check for idle state
-                elif self.player.idle_active:
-                    status = 'STOPPED_OR_FAILED'
-                # If not idle, not aborted, assume it's playing
-                elif not self.player.idle_active and (self.player.filename or self.player.path):
-                    status = 'PLAYING'
+            # A stream is active if the player exists, is not idle, and hasn't aborted.
+            if self.player and not self.player.idle_active and getattr(self.player, 'playback_abort_reason', 'no').lower() == 'no':
+                is_currently_active = True
+        except Exception as e:
+            # Any error polling means the player is dead/unresponsive.
+            logging.warning(f"[{self.title}] Error polling player: {e}. Assuming dead.")
+            self.player = None
+            is_currently_active = False
 
-        except (AttributeError, Exception) as e:
-            # Any error accessing properties means the player is dead/unresponsive
-            status = 'STOPPED_OR_FAILED'
-            if self.player is not None:
-                 logging.warning(f"[{self.title}] Error polling player: {e}. Assuming dead.")
-                 self.player = None # Ensure it's cleared for next restart attempt
+        if is_currently_active:
+            if not self.is_playing:
+                logging.info(f"[{self.title}] Status: Playback has started/resumed.")
+                self.is_playing = True
+            # If it's playing, reset the retry counter.
+            self.retry_count = 0
+            self.last_attempt_time = time.time()
+        else:
+            # Stream is not active.
+            if self.is_playing:
+                logging.warning(f"[{self.title}] Status: Playback stopped or failed.")
+                self.is_playing = False # Update our state view
+                self.last_attempt_time = time.time() # Start the timer for the first retry
 
-        # --- Take Action Based on Polled Status ---
-        if status == 'PLAYING':
-            # logging.debug(f"[{self.title}] Status: Playing.") # Can be noisy, use debug
-            self.last_attempt_time = time.time() # Update time to prevent immediate restart if it briefly drops
-        elif status == 'CONNECTING':
-            logging.info(f"[{self.title}] Status: Connecting/Seeking...")
-            self.last_attempt_time = time.time() # Also update time while connecting
-        elif status == 'STOPPED_OR_FAILED':
-            # If it's stopped, check if enough time has passed to retry
+            # --- Exponential Backoff Logic ---
+            # Calculate how long to wait before the next attempt
+            backoff_delay = min(5 * (2 ** self.retry_count), 60) 
             current_time = time.time()
-            if current_time - self.last_attempt_time >= 5:
-                logging.warning(f"[{self.title}] Status: Stopped/Failed. Reconnect interval passed. Restarting...")
-                self.start() # Attempt a restart
+
+            if current_time - self.last_attempt_time >= backoff_delay:
+                logging.warning(f"[{self.title}] Reconnect interval passed ({backoff_delay}s). Restarting...")
+                self.retry_count += 1
+                self.start()
 
     def stop(self):
         self.should_be_running = False # Prevent monitor from restarting
@@ -169,6 +223,9 @@ class MpvPlayerWrapper:
 
 def main():
     global MPV_INSTANCES_INFO, RUNNING
+
+    webhook_thread = Thread(target=run_webhook_server, daemon=True)
+    webhook_thread.start()
 
     def shutdown_signal_handler(sig, frame):
         global RUNNING
