@@ -34,6 +34,8 @@ If you like this and feel extra thankful, https://paypal.me/HussX1
    - **Rotation**: Adjusts the output to the framebuffer to avoid screen rotation issues on the Pi.
    - **FPS**: Not applicable with MPV - left in for backwards compatibility.
    - **Grid Setup**: Set up the grid using the `row` and `column` variables. For instance, 2 rows and 3 columns will be arranged as such in 0 or 180-degree rotation. In 90 or 270-degree rotation, it will be a 3x2 grid. The stream order will fill the grid based on a 0-degree rotation.
+   - **Webhook**: Enter a user and password with single quotes to set basic http auth for the webhooks.  To bypass auth, leave only the blank single quotes!
+   - **Streams**: Enter the full URL you'd use to access the stream with any other client, inclusive of user/pass if necessary.
 
 3. **Run the Installer**:
    - Once `config.yaml` is modified to your requirements, run the following commands:

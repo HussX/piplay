@@ -4,7 +4,8 @@ import logging
 import sys
 import signal
 import time
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, make_response
+from functools import wraps
 from threading import Thread
 import subprocess
 
@@ -30,6 +31,17 @@ try:
 
     # Read streams from the config file
     STREAMS = config['streams']
+
+    # Read webhook creds
+    webhook_config = config.get('webhook', {})
+    WEBHOOK_USER = webhook_config.get('username')
+    WEBHOOK_PASS = webhook_config.get('password')
+    AUTH_ENABLED = bool(WEBHOOK_USER)
+    
+    if AUTH_ENABLED:
+        logging.info("Webhook authentication is ENABLED.")
+    else:
+        logging.info("Webhook authentication is DISABLED. Set a username in config.yaml to enable it.")
 except KeyError as e:
     logging.warning(f"Missing key in config.yaml: {e}")
     sys.exit(1)
@@ -37,7 +49,25 @@ except KeyError as e:
 # --- Webhook Server Setup ---
 app = Flask(__name__)
 
+def auth_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not AUTH_ENABLED:
+            return f(*args, **kwargs)
+        auth = request.authorization
+        if auth and auth.username == WEBHOOK_USER and auth.password == WEBHOOK_PASS:
+            # If credentials match, proceed with the original function
+            return f(*args, **kwargs)
+        
+        # If credentials fail or are missing, send a 401 Unauthorized response
+        return make_response(
+            'Could not verify your login!', 401, 
+            {'WWW-Authenticate': 'Basic realm="Login Required"'}
+        )
+    return decorated
+
 @app.route('/on', methods=['GET', 'POST'])
+@auth_required
 def screen_on():
     """Endpoint to turn the screen on via DPMS."""
     subprocess.run(['xset', 'dpms', 'force', 'on'])
@@ -45,12 +75,14 @@ def screen_on():
     return jsonify(status="success", command='Screen On'), 200
 
 @app.route('/off', methods=['GET', 'POST'])
+@auth_required
 def screen_off():
     """Endpoint to turn the screen off via DPMS."""
     subprocess.run(['xset', 'dpms', 'force', 'off'])
     return jsonify(status="success", command='Screen Off'), 200
 
 @app.route('/restart', methods=['GET', 'POST'])
+@auth_required
 def screen_restart():
     """Restart piplay service."""
     subprocess.run(['systemctl', 'restart', 'piplay'])
@@ -59,7 +91,7 @@ def screen_restart():
 @app.route('/', methods=['GET'])
 def index():
     """Root endpoint to check if the server is running."""
-    return jsonify(status="ok", message="PiPlay webhook server is running."), 200
+    return jsonify(status="ok", message="PiPlay webhook server is running. Use /on, /off, /restart accordingly."), 200
 
 def run_webhook_server():
     """Runs the Flask app using the Waitress production server."""

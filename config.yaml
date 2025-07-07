@@ -9,3 +9,7 @@ streams:  # List of RTSP and M3U8 streams; others may work but are untested.
   - rtsp://192.168.1.99/Streaming/Channels/1302/
   - http://192.168.1.200/camera/stream.m3u8
   - rtsp://192.168.1.199/Streaming/Channels/902/
+
+webhook:
+  username: 'youruser' #Blank this to disable auth
+  password: 'yourpassword'
