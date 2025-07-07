@@ -1,13 +1,18 @@
 # PiPlay: PI Display for RTSP Camera Streams on Bookworm lite!
 
+## Updates
+
+- **Backend**: This is a rework using X and mpv instead of directly decoding every frame. The overhead is the same or better and it leans into existing distro packages.
+- **Webhooks**: By request, I added some webhooks that could be useable in HA for basic functionality. http://screenIPaddress/on or /off or /restart
+    - off turns off your display
+    - on turns back on the display
+    - restart issues a systemctl restart
+
 ## Disclaimers
 
-- **Screen Output**: If you do not have a screen powered on at service launch time, the service WILL fail!  Eglfs detects the screen capabilities at launch in order to maximize the PyQT6 space usage.
-- **Compatibility**: This was designed for Raspberry Pi 4 and later running Bookworm Lite. It may not function properly if you have a desktop GUI, as it pipes output to the framebuffer.
-- **Performance on Pi 3**: I don't recommend more than a couple streams on a PI 3. It performs smoothly with several streams on a Pi 4.  Pi 5 should work well (Tested working, awaiting feedback from others.)
-- **Camera Compatibility**: It works with the handful of cameras tested so far (e.g., Hik, Geo, Unifi, Wyze via Bridge Docker). Tested with H265!!
-- **Requirements**: The apt packages from the install script have been mostly validated and will be tweaked as I find redundancies.
-- **Wyze Bridge**: If you run the Docker bridge for Wyze, rtsp streams are oddly encoded.  I had to use the m3u8 stream to make them read properly.
+- **Compatibility**: This was designed for Raspberry Pi 4 and later running Bookworm Lite. It may not function properly if you have a desktop GUI, or it may... it installs and runs on X as Wayland doesn't allow specific screen placement yet.
+- **Performance on Pi 3**: This runs well on a 4.  Needs tested more in depth.
+- **Camera Compatibility**: This needs tested in depth. I tested this so far with HV and Unifi. I'm sure the support with mpv is fairly broad.
 
 ## Donations
 
@@ -19,7 +24,7 @@ If you like this and feel extra thankful, https://paypal.me/HussX1
    - Install git from apt and clone this:
      ```sh
      sudo apt-get install git
-     git clone https://github.com/HussX/piplay.git
+     git clone -b mpv https://github.com/HussX/piplay.git
      cd piplay
      ```
 
@@ -36,7 +41,7 @@ If you like this and feel extra thankful, https://paypal.me/HussX1
      sudo chmod +x ./install.sh
      sudo ./install.sh
      ```
-   - This will download the necessary Python packages, move `piplay.py`, `startup.sh`, and `config.yaml` to `/opt/piplay`, and enable the `piplay.service` file. 
+   - This will download the necessary Python packages, move `piplayMPV.py`, `startup.sh`, and `config.yaml` to `/opt/piplay`, and enable the `piplay.service` file. 
 
 4. **Start the service**:
    - Run:
