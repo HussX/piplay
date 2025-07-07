@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-
+### Need to install.... libxext6 x11-xserver-utils xserver-xorg-core python3-mpv --no-install-recommends
+### Turn on screen blanking and ensure xscreensaver isn't installed
+### Need set create API to run xset dpms force off and xset dpms force on
 # Check if the script is run as root
 if [ "$EUID" -ne 0 ]; then
     echo "Please run with sudo"
@@ -7,14 +9,6 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 echo "This installation requires several packages from apt."
-echo "The following packages will be installed:"
-echo "  - python3-opencv"
-echo "  - python3-pyqt6"
-echo "  - gstreamer1.0-plugins-good"
-echo "  - gstreamer1.0-plugins-bad"
-echo "  - gstreamer1.0-plugins-ugly"
-echo "  - python3-yaml"
-echo ""
 echo "Please be patient as there are a lot of involved dependencies!"
 echo ""
 
@@ -30,7 +24,8 @@ done
 
 # Update package lists and install required packages
 apt-get update
-apt-get install -y python3-opencv python3-pyqt6 gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly python3-yaml
+apt-get install -y --no-install-recommends xserver-xorg-core
+apt-get install -y python3-mpv libxext6 x11-xserver-utils python3-yaml python3-flask python3-waitress
 echo ""
 
 # Prompt to check if the user has configured piplay.py
@@ -45,7 +40,7 @@ done
 
 # Move files to /opt/piplay and set permissions
 mkdir -p /opt/piplay
-mv ./piplay.py /opt/piplay/
+mv ./piplayMPV.py /opt/piplay/
 mv ./startup.sh /opt/piplay/
 mv ./config.yaml /opt/piplay/
 chmod +x /opt/piplay/startup.sh
