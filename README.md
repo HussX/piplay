@@ -32,7 +32,7 @@ If you like this and feel extra thankful, https://paypal.me/HussX1
    - This tool is not built for custom screen locations or multiple screens. Just a generic grid.
    - Ensure you have the correct number of cameras for your grid. For example, a 2x2 grid for 3-4 cameras.
    - **Rotation**: Adjusts the output to the framebuffer to avoid screen rotation issues on the Pi.
-   - **FPS**: Lowering this value skips more incoming frames, reducing CPU load.
+   - **FPS**: Not applicable with MPV - left in for backwards compatibility.
    - **Grid Setup**: Set up the grid using the `row` and `column` variables. For instance, 2 rows and 3 columns will be arranged as such in 0 or 180-degree rotation. In 90 or 270-degree rotation, it will be a 3x2 grid. The stream order will fill the grid based on a 0-degree rotation.
 
 3. **Run the Installer**:
@@ -49,7 +49,6 @@ If you like this and feel extra thankful, https://paypal.me/HussX1
      sudo systemctl start piplay
      ```
    - If you need to troubleshoot, check `sudo systemctl status piplay` and/or `journalctl -f`.  Program logfiles are stored at `/var/log/piplay.log`.
-   - **Note**: If you download `piplay.py` directly and install manually, ensure to pull the framebuffer exports from `startup.sh` along with the `config.yaml`.
 
 ## Contributions and Maintenance
 
