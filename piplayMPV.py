@@ -37,29 +37,18 @@ except KeyError as e:
 # --- Webhook Server Setup ---
 app = Flask(__name__)
 
-def run_command(command_args, command_name):
-    """A helper function to run shell commands and handle errors."""
-    try:
-        # Using check=True will raise CalledProcessError if the command returns a non-zero exit code
-        subprocess.run(command_args, check=True, capture_output=True, text=True)
-        logging.info(f"Webhook: Successfully executed '{command_name}'.")
-        return jsonify(status="success", command=command_name), 200
-    except FileNotFoundError:
-        logging.error(f"Webhook: Command '{command_args[0]}' not found. Is it installed and in the system's PATH?")
-        return jsonify(status="error", message=f"Command '{command_args[0]}' not found."), 500
-    except subprocess.CalledProcessError as e:
-        logging.error(f"Webhook: Error executing '{command_name}': {e.stderr}")
-        return jsonify(status="error", message=f"Error executing command.", details=e.stderr), 500
-
 @app.route('/on', methods=['GET', 'POST'])
 def screen_on():
     """Endpoint to turn the screen on via DPMS."""
-    return run_command(['xset', 'dpms', 'force', 'on'], 'xset dpms force on')
+    subprocess.run(['xset', 'dpms', 'force', 'on'])
+    subprocess.run(['xset', 's', 'off', 's', 'noblank', '-dpms'])
+    return jsonify(status="success", command='Screen On'), 200
 
 @app.route('/off', methods=['GET', 'POST'])
 def screen_off():
     """Endpoint to turn the screen off via DPMS."""
-    return run_command(['xset', 'dpms', 'force', 'off'], 'xset dpms force off')
+    subprocess.run(['xset', 'dpms', 'force', 'off'])
+    return jsonify(status="success", command='Screen Off'), 200
 
 @app.route('/restart', methods=['GET', 'POST'])
 def screen_restart():
@@ -158,7 +147,9 @@ class MpvPlayerWrapper:
                 keepaspect='no',
                 title=self.title,
                 demuxer_lavf_o='reconnect=1,reconnect_streamed=1,reconnect_delay_max=5',
-                stop_screensaver='no'
+                stop_screensaver='no',
+                profile='low-latency',
+                untimed='yes'
             )
             
             self.player.play(self.url)
