@@ -70,6 +70,14 @@ def auth_required(f):
 @auth_required
 def screen_on():
     """Endpoint to turn the screen on via DPMS."""
+    for player_wrapper in MPV_INSTANCES_INFO:
+        try:
+            # Check if the player instance actually exists
+            if player_wrapper.player:
+                player_wrapper.player.vo = 'gpu'
+        except Exception as e:
+            logging.error(f"Failed to set VO for {player_wrapper.title}: {e}")
+    logging.info("Moved streams back to GPU for screen on.")
     subprocess.run(['xset', 'dpms', 'force', 'on'])
     subprocess.run(['xset', 's', 'off', 's', 'noblank', '-dpms'])
     return jsonify(status="success", command='Screen On'), 200
@@ -78,6 +86,14 @@ def screen_on():
 @auth_required
 def screen_off():
     """Endpoint to turn the screen off via DPMS."""
+    for player_wrapper in MPV_INSTANCES_INFO:
+        try:
+            # Check if the player instance actually exists
+            if player_wrapper.player:
+                player_wrapper.player.vo = 'null'
+        except Exception as e:
+            logging.error(f"Failed to set VO for {player_wrapper.title}: {e}")
+    logging.info("Moved streams to null output for screen off.")
     subprocess.run(['xset', 'dpms', 'force', 'off'])
     return jsonify(status="success", command='Screen Off'), 200
 
@@ -124,7 +140,6 @@ def calculate_geometry_string_percentage(stream_index):
         
     h_perc = cell_h_exact
 
-    # mpv expects integer percentages for its geometry string as per user feedback
     return f"{int(w_perc)}%x{int(h_perc)}%+{int(x_perc)}%+{int(y_perc)}%"
 
 class MpvPlayerWrapper:
@@ -141,8 +156,7 @@ class MpvPlayerWrapper:
         self.is_playing = False
 
     def start(self):
-        """Terminates any old instance and starts a new one. This is the only
-           place where a new player instance is created."""
+        """Terminates any old instance and starts a new one."""
         global RUNNING
         if not RUNNING or not self.should_be_running:
             return
@@ -265,7 +279,7 @@ def main():
         if i < len(STREAMS):
             stream_config_item = STREAMS[i]
             try:
-                player_wrapper = MpvPlayerWrapper(i, stream_config_item) # Pass inde1x and config item
+                player_wrapper = MpvPlayerWrapper(i, stream_config_item) # Pass index and config item
                 MPV_INSTANCES_INFO.append(player_wrapper)
                 player_wrapper.start()
             except ValueError as e:
@@ -276,6 +290,8 @@ def main():
             logging.info(f"Grid cell for index {i} has no stream assigned in config (Grid: {GRID_ROWS}x{GRID_COLS}).")
 
     try:
+        subprocess.run(['xset', 'dpms', 'force', 'on'])
+        subprocess.run(['xset', 's', 'off', 's', 'noblank', '-dpms'])
         while RUNNING:
             for player_wrapper in MPV_INSTANCES_INFO:
                 if not RUNNING: break
