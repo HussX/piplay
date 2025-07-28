@@ -78,6 +78,7 @@ def screen_on():
         except Exception as e:
             logging.error(f"Failed to set VO for {player_wrapper.title}: {e}")
     logging.info("Moved streams back to GPU for screen on.")
+    time.sleep(1)
     subprocess.run(['xset', 'dpms', 'force', 'on'])
     subprocess.run(['xset', 's', 'off', 's', 'noblank', '-dpms'])
     return jsonify(status="success", command='Screen On'), 200
@@ -94,6 +95,8 @@ def screen_off():
         except Exception as e:
             logging.error(f"Failed to set VO for {player_wrapper.title}: {e}")
     logging.info("Moved streams to null output for screen off.")
+    time.sleep(0.5)
+    subprocess.run(['xset', 's', 'activate', '+dpms'])
     subprocess.run(['xset', 'dpms', 'force', 'off'])
     return jsonify(status="success", command='Screen Off'), 200
 
